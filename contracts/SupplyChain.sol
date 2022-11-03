@@ -1,4 +1,5 @@
 pragma solidity ^0.5.0;
+
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v2.5.0/contracts/math/SafeMath.sol"; 
 
 /**
@@ -23,6 +24,7 @@ contract SupplyChain {
    struct Step {
        address creator;
        uint256 item;
+       //string url=null;
        uint256[] precedents;
    }
    /**
@@ -34,12 +36,14 @@ contract SupplyChain {
     * @notice Step counter
     */
    uint256 public totalSteps;
+
+   uint256[2][] public relations;
    /**
     * @notice Mapping from item id to the last step in the lifecycle 
     * of that item.
     */
    mapping(uint256 => uint256) public lastSteps;
-
+  
 /**
     * @notice A method to create a new supply chain step. The 
     * msg.sender is recorded as the creator of the step, which might
@@ -80,6 +84,11 @@ contract SupplyChain {
            _item,
            _precedents
        );
+       
+       for (uint i = 0; i < _precedents.length; i++){
+           relations.push([totalSteps,_precedents[i]]);
+       }
+
        uint256 step = totalSteps;
        totalSteps += 1;
        lastSteps[_item] = step;
@@ -111,5 +120,12 @@ contract SupplyChain {
        returns(uint256[] memory)
    {
        return steps[_step].precedents;
+   }
+   function getSupplyChain()
+       public
+       view
+       returns(uint256[2][] memory)
+   {
+       return relations;
    }
 }
